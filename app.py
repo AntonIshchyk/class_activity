@@ -18,7 +18,12 @@ def predict():
     avg_glucose = request.form.get("avg_glucose", type=float) or 0.0
     bmi = request.form.get("bmi", type=float) or 0.0
     gender = request.form.get("male", type=str) or "female"
-    smoking_status = request.form.get("smoking_status", type=str) if request.form.get("smoking_status", type=str) in ["never smoked", "formerly smoked", "smokes"] else "Unknown"
+    smoking_status = (
+        request.form.get("smoking_status", type=str)
+        if request.form.get("smoking_status", type=str)
+        in ["never smoked", "formerly smoked", "smokes"]
+        else "Unknown"
+    )
 
     payload = {
         "age": age,
@@ -40,27 +45,39 @@ def predict():
         ),
         200,
     )
-    
+
+
 def encode_features(payload):
-    payload['gender'] = 1 if payload['gender'] == 'male' else 0
-    payload['smoking_status'] = {
-        'never smoked': 0,
-        'formerly smoked': 1,
-        'smokes': 2,
-        'Unknown': -1
-    }.get(payload['smoking_status'], -1)
+    payload["gender"] = 1 if payload["gender"] == "male" else 0
+    payload["smoking_status"] = {
+        "never smoked": 0,
+        "formerly smoked": 1,
+        "smokes": 2,
+        "Unknown": -1,
+    }.get(payload["smoking_status"], -1)
 
     # 2.5.3 Build the input array
-    input_array = np.array([[
-        payload['age'],
-        payload['hypertension'],
-        payload['heart_disease'],
-        payload['avg_glucose'],
-        payload['bmi'],
-        payload['gender'],
-        payload['smoking_status']
-    ]])
+    input_array = np.array(
+        [
+            [
+                payload["age"],
+                payload["hypertension"],
+                payload["heart_disease"],
+                payload["avg_glucose"],
+                payload["bmi"],
+                payload["gender"],
+                payload["smoking_status"],
+            ]
+        ]
+    )
     return input_array
 
+
+def load_model():
+    global model
+    model = joblib.load("stroke_model.pkl")
+
+
 if __name__ == "__main__":
+    load_model()
     app.run(debug=True)
