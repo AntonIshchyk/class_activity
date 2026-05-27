@@ -35,12 +35,35 @@ def predict():
         "smoking_status": smoking_status,
     }
     input_array = encode_features(payload)
+
+    # 2.5.4 Perform prediction
+    probability = model.predict_proba(input_array)[0, 1]
+
+    # 2.5.5 Map the probability to a risk level
+    if probability < 0.25:
+        risk_level = "LOW"
+        color = "success"
+        message = "No immediate escalation. Continue standard protocol."
+    elif probability < 0.55:
+        risk_level = "MODERATE"
+        color = "warning"
+        message = "Recommend neurological assessment within 2 hours."
+    else:
+        risk_level = "HIGH"
+        color = "danger"
+        message = "Urgent — refer for immediate neurological evaluation."
+
     return (
         jsonify(
             {
                 "message": "Predict endpoint is ready.",
                 "input": payload,
-                "prediction": None,
+                "prediction": {
+                    "probability": float(probability),
+                    "risk_level": risk_level,
+                    "color": color,
+                    "clinical_recommendation": message,
+                },
             }
         ),
         200,
