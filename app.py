@@ -2,20 +2,24 @@ from flask import Flask, jsonify, request, render_template
 import joblib
 import numpy as np
 
+# 2.3 initialize the Flask app
 app = Flask(__name__)
 
-# Load model at module level
+# 2.2 load the model at startup
 model_dict = joblib.load("stroke_model.pkl")
-model = model_dict['model']
+model = model_dict["model"]
 
 
+# 2.4 home route
 @app.get("/")
 def home():
     return render_template("index.html", prediction=None, patient=None)
 
 
+# 2.5 predict route
 @app.route("/predict", methods=["POST"])
 def predict():
+    # 2.5.1 read each form field
     age = request.form.get("age", type=float) or 0.0
     hypertension = request.form.get("hypertension", type=int) or 0
     heart_disease = request.form.get("heart_disease", type=int) or 0
@@ -82,6 +86,7 @@ def predict():
 
 
 def encode_features(payload):
+    # 2.5.2 Encode categorical fields
     payload["gender"] = 1 if payload["gender"] == "male" else 0
     payload["smoking_status"] = {
         "never smoked": 0,
