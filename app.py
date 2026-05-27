@@ -29,7 +29,7 @@ def predict():
         "gender": gender,
         "smoking_status": smoking_status,
     }
-    encode_features(payload)
+    input_array = encode_features(payload)
     return (
         jsonify(
             {
@@ -49,6 +49,18 @@ def encode_features(payload):
         'smokes': 2,
         'Unknown': -1
     }.get(payload['smoking_status'], -1)
+
+    # 2.5.3 Build the input array
+    input_array = np.array([[
+        payload['age'],
+        payload['hypertension'],
+        payload['heart_disease'],
+        payload['avg_glucose'],
+        payload['bmi'],
+        payload['gender'],
+        payload['smoking_status']
+    ]])
+    return input_array
 
 if __name__ == "__main__":
     app.run(debug=True)
