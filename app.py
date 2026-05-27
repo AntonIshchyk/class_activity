@@ -4,6 +4,10 @@ import numpy as np
 
 app = Flask(__name__)
 
+# Load model at module level
+model_dict = joblib.load("stroke_model.pkl")
+model = model_dict['model']
+
 
 @app.get("/")
 def home():
@@ -103,11 +107,5 @@ def encode_features(payload):
     return input_array
 
 
-def load_model():
-    global model
-    model = joblib.load("stroke_model.pkl")
-
-
 if __name__ == "__main__":
-    load_model()
     app.run(debug=True)
