@@ -25,7 +25,8 @@ def predict():
         else "Unknown"
     )
 
-    payload = {
+    # Store original values for patient dict
+    raw_values = {
         "age": age,
         "hypertension": hypertension,
         "heart_disease": heart_disease,
@@ -34,6 +35,8 @@ def predict():
         "gender": gender,
         "smoking_status": smoking_status,
     }
+
+    payload = raw_values.copy()
     input_array = encode_features(payload)
 
     # 2.5.4 Perform prediction
@@ -53,21 +56,25 @@ def predict():
         color = "danger"
         message = "Urgent — refer for immediate neurological evaluation."
 
-    return (
-        jsonify(
-            {
-                "message": "Predict endpoint is ready.",
-                "input": payload,
-                "prediction": {
-                    "probability": float(probability),
-                    "risk_level": risk_level,
-                    "color": color,
-                    "clinical_recommendation": message,
-                },
-            }
-        ),
-        200,
-    )
+    # 2.5.6 Build prediction and patient dictionaries
+    prediction = {
+        "risk_level": risk_level,
+        "risk_color": color,
+        "risk_pct": round(probability * 100),
+        "risk_msg": message,
+    }
+
+    patient = {
+        "age": raw_values["age"],
+        "hypertension": "Yes" if raw_values["hypertension"] == 1 else "No",
+        "heart_disease": "Yes" if raw_values["heart_disease"] == 1 else "No",
+        "avg_glucose": raw_values["avg_glucose"],
+        "bmi": raw_values["bmi"],
+        "gender": raw_values["gender"],
+        "smoking_status": raw_values["smoking_status"],
+    }
+
+    return render_template("index.html", prediction=prediction, patient=patient)
 
 
 def encode_features(payload):
